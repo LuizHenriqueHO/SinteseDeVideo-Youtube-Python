@@ -4,7 +4,7 @@ Rafael Henriques Aquino Correa e Luiz Henrique Horta Oliveira
 
 __Objetivo: Criar projeto de Phyton para resumir vídeos do youtube.__
 
-### Desenvolvimento
+## Desenvolvimento
 O projeto será feito em 3 etapas:
 
 1)Baixar o vídeo
