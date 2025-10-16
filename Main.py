@@ -4,7 +4,7 @@ from pytubefix import YouTube
 from pytubefix.cli import on_progress
 from summarizer import Summarizer
 
-url = "https://www.youtube.com/watch?v=I8q0S_XGwdg"
+url = input("Escreva a url do video do youtube: ")
 
 yt = YouTube(url, on_progress_callback=on_progress)
 print(yt.title)
