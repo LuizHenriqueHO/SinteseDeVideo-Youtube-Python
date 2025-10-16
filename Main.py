@@ -2,8 +2,9 @@
 import whisper
 from pytubefix import YouTube
 from pytubefix.cli import on_progress
+from summarizer import Summarizer
 
-url = "https://www.youtube.com/watch?v=puymQ31SgG0"
+url = "https://www.youtube.com/watch?v=I8q0S_XGwdg"
 
 yt = YouTube(url, on_progress_callback=on_progress)
 print(yt.title)
@@ -13,6 +14,12 @@ arquivo = ys.download()
 
 modelo = whisper.load_model("base")
 
-transcricao = modelo.transcribe(arquivo)
+dicionario = modelo.transcribe(arquivo)
+transcricao = dicionario['text']
 
-print(transcricao)
+
+texto_completo = transcricao
+modelo = Summarizer()
+resumo = modelo(texto_completo, min_length=30, max_length=1000)
+
+print(resumo)
