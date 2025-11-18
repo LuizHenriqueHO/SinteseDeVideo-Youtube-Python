@@ -15,7 +15,14 @@ def transcrever_audio(arquivo, modelo):
 
 def gerar_resumo(texto):
     modelo_resumo = Summarizer()
-    return modelo_resumo(texto, min_length=30, max_length=1000)
+    resumo = modelo_resumo(texto, min_length=30, max_length=1000)
+
+#Parte de formatacao correta do nosso resumo
+    resumo = resumo.strip() 
+    resumo = resumo.replace("\n", " ")
+    resumo = resumo.replace("  ", " ") 
+
+    return resumo
 
 url = input("Escreva a url do video do youtube: ")
 
