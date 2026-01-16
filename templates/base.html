@@ -39,6 +39,25 @@
             font-family: 'Inter', sans-serif;
             background-color: #F3F4F6;
         }
+        body.theme-preview-escuro {
+            background-color: #020617;
+            color: #F9FAFB;
+        }
+        body.theme-preview-escuro .bg-white {
+            background-color: #020617;
+        }
+        body.theme-preview-escuro .bg-gray-50 {
+            background-color: #020617;
+        }
+        body.theme-preview-escuro .text-gray-900 {
+            color: #F9FAFB;
+        }
+        body.theme-preview-escuro .text-gray-500 {
+            color: #9CA3AF;
+        }
+        body.theme-preview-escuro .border-gray-100 {
+            border-color: #111827;
+        }
         .btn-primary {
             @apply bg-tubify-green text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors shadow-lg shadow-green-200;
         }
@@ -58,7 +77,7 @@
             <div class="flex justify-between h-32">
                 <div class="flex items-center">
                     <a href="/" class="flex-shrink-0 flex items-center">
-                        <img class="h-28 w-auto" src="{{ url_for('static', filename='images/logo_p2.png') }}" alt="Tubify">
+                        <img class="h-28 w-auto" src="{{ url_for('static', filename='images/real log.png') }}" alt="Tubify">
                     </a>
                     <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
                         <a href="/" class="border-transparent text-gray-500 hover:border-tubify-green hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Home</a>
@@ -66,8 +85,12 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="/login" class="text-gray-500 hover:text-gray-900 font-medium text-sm">Entrar</a>
-                    <a href="/login" class="bg-tubify-green text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-md shadow-green-200">Começar Grátis</a>
+                    {% if session.get('user_email') %}
+                        <a href="{{ url_for('logout') }}" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors shadow-md shadow-red-200">Logout</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="text-gray-500 hover:text-gray-900 font-medium text-sm">Entrar</a>
+                        <a href="{{ url_for('cadastro') }}" class="bg-tubify-green text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-md shadow-green-200">Cadastro</a>
+                    {% endif %}
                 </div>
             </div>
         </div>

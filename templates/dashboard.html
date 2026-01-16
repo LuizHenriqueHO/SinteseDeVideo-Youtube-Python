@@ -8,27 +8,33 @@
         <aside class="w-full md:w-64 flex-shrink-0">
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-24">
                 <div class="flex items-center space-x-3 mb-8">
-                    <div class="h-10 w-10 rounded-full bg-gray-200"></div>
+                    <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold text-gray-600">
+                        {{ user.name[:1] if user and user.name else "U" }}
+                    </div>
                     <div>
-                        <p class="text-sm font-medium text-gray-900">Rafael Silva</p>
-                        <p class="text-xs text-gray-500">Plano Gratuito</p>
+                        <p class="text-sm font-medium text-gray-900">
+                            {{ user.name if user and user.name else "Usuário Tubify" }}
+                        </p>
+                        <p class="text-xs text-gray-500">
+                            {% if user and user.plan == 'pro' %}Plano Premium{% else %}Plano Gratuito{% endif %}
+                        </p>
                     </div>
                 </div>
                 
                 <nav class="space-y-2">
-                    <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-md bg-green-50 text-tubify-green">
+                    <a href="{{ url_for('dashboard') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-md {% if active_section == 'resumos' %}bg-green-50 text-tubify-green{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
                         <svg class="mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                         </svg>
                         Meus Resumos
                     </a>
-                    <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+                    <a href="{{ url_for('favoritos') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-md {% if active_section == 'favoritos' %}bg-green-50 text-tubify-green{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
                         <svg class="mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
                         Favoritos
                     </a>
-                    <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+                    <a href="{{ url_for('configuracoes') }}" class="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
                         <svg class="mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -52,60 +58,39 @@
         <!-- Main Area -->
         <div class="flex-1">
             <!-- Header Area -->
-            <div class="mb-8 flex justify-between items-end">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Meus Resumos</h1>
-                    <p class="text-gray-500">Você já economizou 2 horas de estudo esta semana.</p>
-                </div>
-                <button class="hidden md:block bg-tubify-green text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
-                    + Novo Resumo
-                </button>
+            <div class="mb-8">
+                {% if active_section == 'favoritos' %}
+                <h1 class="text-2xl font-bold text-gray-900">Favoritos</h1>
+                <p class="text-gray-500">Aqui ficam os resumos que você marcar como favoritos.</p>
+                {% else %}
+                <h1 class="text-2xl font-bold text-gray-900">Meus Resumos</h1>
+                <p class="text-gray-500">Você ainda não gerou resumos hoje. Comece colando um link na página inicial.</p>
+                {% endif %}
             </div>
 
             <!-- Stats -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                     <p class="text-gray-500 text-sm">Resumos Hoje</p>
-                    <p class="text-2xl font-bold text-gray-900">2<span class="text-gray-400 text-sm font-normal">/5</span></p>
+                    <p class="text-2xl font-bold text-gray-900">0<span class="text-gray-400 text-sm font-normal">/5</span></p>
                 </div>
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                     <p class="text-gray-500 text-sm">Tempo Salvo</p>
-                    <p class="text-2xl font-bold text-gray-900">45m</p>
+                    <p class="text-2xl font-bold text-gray-900">0m</p>
                 </div>
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                     <p class="text-gray-500 text-sm">Total Resumido</p>
-                    <p class="text-2xl font-bold text-gray-900">12</p>
+                    <p class="text-2xl font-bold text-gray-900">0</p>
                 </div>
             </div>
 
             <!-- List -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <ul class="divide-y divide-gray-100">
-                    {% for summary in summaries %}
-                    <li class="p-4 hover:bg-gray-50 transition-colors cursor-pointer">
-                        <div class="flex items-center space-x-4">
-                            <div class="flex-shrink-0 h-16 w-24 relative rounded overflow-hidden bg-gray-200">
-                                <img src="{{ summary.thumbnail }}" alt="" class="h-full w-full object-cover">
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-900 truncate">
-                                    {{ summary.title }}
-                                </p>
-                                <div class="flex items-center text-xs text-gray-500 mt-1">
-                                    <span>{{ summary.date }}</span>
-                                    <span class="mx-1">•</span>
-                                    <span>Duração original: {{ summary.duration }}</span>
-                                </div>
-                            </div>
-                            <div>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    Completo
-                                </span>
-                            </div>
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center text-sm text-gray-500">
+                {% if active_section == 'favoritos' %}
+                Você ainda não tem favoritos. Quando salvar resumos, poderá marcá-los aqui.
+                {% else %}
+                Você ainda não tem resumos salvos. Gere seu primeiro resumo na página inicial do Tubify.
+                {% endif %}
             </div>
         </div>
     </div>

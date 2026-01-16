@@ -1,0 +1,392 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Configurações</h1>
+        <p class="text-gray-500 text-sm">Personalize sua conta, seus resumos e a forma como o Tubify funciona para você.</p>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-8">
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6 sticky top-24">
+                <nav class="space-y-1">
+                    <button type="button" data-tab-target="conta" class="tab-link w-full flex items-center px-3 py-2 text-sm font-medium rounded-md {% if active_tab == 'conta' %}bg-green-50 text-tubify-green{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                        <span class="mr-3 h-5 w-5 rounded-full bg-green-100 flex items-center justify-center text-xs text-tubify-green">C</span>
+                        <span>Conta</span>
+                    </button>
+                    <button type="button" data-tab-target="resumo" class="tab-link w-full flex items-center px-3 py-2 text-sm font-medium rounded-md {% if active_tab == 'resumo' %}bg-green-50 text-tubify-green{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                        <span class="mr-3 h-5 w-5 rounded-full bg-green-100 flex items-center justify-center text-xs text-tubify-green">R</span>
+                        <span>Preferências de resumo</span>
+                    </button>
+                    <button type="button" data-tab-target="aparencia" class="tab-link w-full flex items-center px-3 py-2 text-sm font-medium rounded-md {% if active_tab == 'aparencia' %}bg-green-50 text-tubify-green{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                        <span class="mr-3 h-5 w-5 rounded-full bg-green-100 flex items-center justify-center text-xs text-tubify-green">A</span>
+                        <span>Aparência</span>
+                    </button>
+                    <button type="button" data-tab-target="notificacoes" class="tab-link w-full flex items-center px-3 py-2 text-sm font-medium rounded-md {% if active_tab == 'notificacoes' %}bg-green-50 text-tubify-green{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                        <span class="mr-3 h-5 w-5 rounded-full bg-green-100 flex items-center justify-center text-xs text-tubify-green">N</span>
+                        <span>Notificações</span>
+                    </button>
+                    <button type="button" data-tab-target="plano" class="tab-link w-full flex items-center px-3 py-2 text-sm font-medium rounded-md {% if active_tab == 'plano' %}bg-green-50 text-tubify-green{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                        <span class="mr-3 h-5 w-5 rounded-full bg-green-100 flex items-center justify-center text-xs text-tubify-green">P</span>
+                        <span>Plano e cobrança</span>
+                    </button>
+                    <button type="button" data-tab-target="privacidade" class="tab-link w-full flex items-center px-3 py-2 text-sm font-medium rounded-md {% if active_tab == 'privacidade' %}bg-green-50 text-tubify-green{% else %}text-gray-600 hover:bg-gray-50 hover:text-gray-900{% endif %}">
+                        <span class="mr-3 h-5 w-5 rounded-full bg-green-100 flex items-center justify-center text-xs text-tubify-green">D</span>
+                        <span>Privacidade e dados</span>
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="flex-1">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                {% if success_message %}
+                <div class="mb-4 rounded-lg bg-green-50 border border-green-100 px-4 py-3 text-sm text-green-800">
+                    {{ success_message }}
+                </div>
+                {% endif %}
+
+                <div id="tab-conta" class="{% if active_tab != 'conta' %}hidden{% endif %} space-y-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900">Conta</h2>
+                        <p class="text-sm text-gray-500">Gerencie suas informações pessoais e dados de acesso.</p>
+                    </div>
+                    <form method="POST" class="space-y-4">
+                        <input type="hidden" name="section" value="conta">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Nome</label>
+                            <input id="name" name="name" type="text" value="{{ account.name }}" placeholder="Como você quer ser chamado" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-tubify-green focus:ring-tubify-green text-sm">
+                            <p class="mt-1 text-xs text-gray-500">Usamos esse nome para personalizar sua experiência.</p>
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input id="email" name="email" type="email" value="{{ account.email }}" placeholder="seuemail@exemplo.com" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-tubify-green focus:ring-tubify-green text-sm">
+                            <p class="mt-1 text-xs text-gray-500">Usamos esse email para avisar quando seus resumos estiverem prontos.</p>
+                        </div>
+                        <div class="pt-2">
+                            <button type="submit" class="bg-tubify-green text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
+                                Salvar alterações
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="tab-resumo" class="{% if active_tab != 'resumo' %}hidden{% endif %} space-y-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900">Preferências de resumo</h2>
+                        <p class="text-sm text-gray-500">Defina como o Tubify deve transformar seus vídeos em conhecimento.</p>
+                    </div>
+                    <form method="POST" class="space-y-6">
+                        <input type="hidden" name="section" value="resumo">
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-2">Tamanho do resumo</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-3 text-sm text-gray-700">
+                                    <input type="radio" name="summary_size" value="curto" class="text-tubify-green focus:ring-tubify-green" {% if summary.size == 'curto' %}checked{% endif %}>
+                                    <span>
+                                        <span class="font-medium">Curto</span>
+                                        <span class="block text-xs text-gray-500">Principais ideias em poucos parágrafos.</span>
+                                    </span>
+                                </label>
+                                <label class="flex items-center space-x-3 text-sm text-gray-700">
+                                    <input type="radio" name="summary_size" value="medio" class="text-tubify-green focus:ring-tubify-green" {% if summary.size == 'medio' %}checked{% endif %}>
+                                    <span>
+                                        <span class="font-medium">Médio</span>
+                                        <span class="block text-xs text-gray-500">Equilíbrio entre detalhes e objetividade.</span>
+                                    </span>
+                                </label>
+                                <label class="flex items-center space-x-3 text-sm text-gray-700">
+                                    <input type="radio" name="summary_size" value="longo" class="text-tubify-green focus:ring-tubify-green" {% if summary.size == 'longo' %}checked{% endif %}>
+                                    <span>
+                                        <span class="font-medium">Longo</span>
+                                        <span class="block text-xs text-gray-500">Mais detalhes para estudo profundo.</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-2">Formato</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-3 text-sm text-gray-700">
+                                    <input type="radio" name="summary_format" value="texto" class="text-tubify-green focus:ring-tubify-green" {% if summary.format == 'texto' %}checked{% endif %}>
+                                    <span>
+                                        <span class="font-medium">Texto corrido</span>
+                                        <span class="block text-xs text-gray-500">Resumo fluido em parágrafos.</span>
+                                    </span>
+                                </label>
+                                <label class="flex items-center space-x-3 text-sm text-gray-700">
+                                    <input type="radio" name="summary_format" value="topicos" class="text-tubify-green focus:ring-tubify-green" {% if summary.format == 'topicos' %}checked{% endif %}>
+                                    <span>
+                                        <span class="font-medium">Tópicos (bullet points)</span>
+                                        <span class="block text-xs text-gray-500">Resumo organizado em tópicos para leitura rápida.</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="summary_language" class="block text-sm font-medium text-gray-700">Idioma do resumo</label>
+                            <select id="summary_language" name="summary_language" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-tubify-green focus:ring-tubify-green text-sm">
+                                <option value="pt-BR" {% if summary.language == 'pt-BR' %}selected{% endif %}>Português (PT-BR)</option>
+                                <option value="en" {% if summary.language == 'en' %}selected{% endif %}>Inglês (EN)</option>
+                                <option value="es" {% if summary.language == 'es' %}selected{% endif %}>Espanhol (ES)</option>
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Escolha em qual idioma você prefere receber os resumos.</p>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" class="bg-tubify-green text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
+                                Salvar preferências
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="tab-aparencia" class="{% if active_tab != 'aparencia' %}hidden{% endif %} space-y-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900">Aparência</h2>
+                        <p class="text-sm text-gray-500">Ajuste o visual do Tubify para o seu jeito de estudar.</p>
+                    </div>
+                    <form method="POST" class="space-y-6">
+                        <input type="hidden" name="section" value="aparencia">
+
+                        <div>
+                            <p class="text-sm font-medium text-gray-700 mb-2">Tema</p>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="border rounded-lg p-3 flex items-center space-x-3 cursor-pointer {% if appearance.theme == 'claro' %}border-tubify-green bg-green-50{% else %}border-gray-200 hover:border-gray-300{% endif %}">
+                                    <input type="radio" name="theme" value="claro" class="text-tubify-green focus:ring-tubify-green" {% if appearance.theme == 'claro' %}checked{% endif %}>
+                                    <span>
+                                        <span class="block text-sm font-medium text-gray-900">Claro</span>
+                                        <span class="block text-xs text-gray-500">Ideal para ambientes bem iluminados.</span>
+                                    </span>
+                                </label>
+                                <label class="border rounded-lg p-3 flex items-center space-x-3 cursor-pointer {% if appearance.theme == 'escuro' %}border-tubify-green bg-green-50{% else %}border-gray-200 hover:border-gray-300{% endif %}">
+                                    <input type="radio" name="theme" value="escuro" class="text-tubify-green focus:ring-tubify-green" {% if appearance.theme == 'escuro' %}checked{% endif %}>
+                                    <span>
+                                        <span class="block text-sm font-medium text-gray-900">Escuro</span>
+                                        <span class="block text-xs text-gray-500">Mais confortável para usar à noite.</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="font_size" class="block text-sm font-medium text-gray-700">Tamanho da fonte</label>
+                            <select id="font_size" name="font_size" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-tubify-green focus:ring-tubify-green text-sm">
+                                <option value="pequena" {% if appearance.font_size == 'pequena' %}selected{% endif %}>Pequena</option>
+                                <option value="media" {% if appearance.font_size == 'media' %}selected{% endif %}>Média</option>
+                                <option value="grande" {% if appearance.font_size == 'grande' %}selected{% endif %}>Grande</option>
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">Ajuste o tamanho do texto para facilitar a leitura dos seus resumos.</p>
+                        </div>
+
+                        <div class="space-y-3">
+                            <label class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-700">Aumentar contraste</p>
+                                    <p class="text-xs text-gray-500">Melhora a legibilidade de textos e botões.</p>
+                                </div>
+                                <input type="checkbox" name="high_contrast" class="h-4 w-4 text-tubify-green border-gray-300 rounded focus:ring-tubify-green" {% if appearance.high_contrast %}checked{% endif %}>
+                            </label>
+                            <label class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-700">Reduzir animações</p>
+                                    <p class="text-xs text-gray-500">Remove efeitos visuais que podem distrair.</p>
+                                </div>
+                                <input type="checkbox" name="reduce_animations" class="h-4 w-4 text-tubify-green border-gray-300 rounded focus:ring-tubify-green" {% if appearance.reduce_animations %}checked{% endif %}>
+                            </label>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" class="bg-tubify-green text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
+                                Salvar aparência
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="tab-notificacoes" class="{% if active_tab != 'notificacoes' %}hidden{% endif %} space-y-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900">Notificações</h2>
+                        <p class="text-sm text-gray-500">Escolha como e quando você quer ser notificado.</p>
+                    </div>
+                    <form method="POST" class="space-y-4">
+                        <input type="hidden" name="section" value="notificacoes">
+
+                        <label class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Email quando resumo estiver pronto</p>
+                                <p class="text-xs text-gray-500">Receba um email assim que o Tubify terminar um novo resumo.</p>
+                            </div>
+                            <input type="checkbox" name="email_ready" class="h-4 w-4 text-tubify-green border-gray-300 rounded focus:ring-tubify-green" {% if notifications.email_ready %}checked{% endif %}>
+                        </label>
+
+                        <label class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Alertas de limite diário</p>
+                                <p class="text-xs text-gray-500">Seja avisado quando estiver perto de atingir o limite do seu plano.</p>
+                            </div>
+                            <input type="checkbox" name="daily_limit_alerts" class="h-4 w-4 text-tubify-green border-gray-300 rounded focus:ring-tubify-green" {% if notifications.daily_limit_alerts %}checked{% endif %}>
+                        </label>
+
+                        <label class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Novidades do Tubify</p>
+                                <p class="text-xs text-gray-500">Fique por dentro de novos recursos e conteúdos.</p>
+                            </div>
+                            <input type="checkbox" name="news" class="h-4 w-4 text-tubify-green border-gray-300 rounded focus:ring-tubify-green" {% if notifications.news %}checked{% endif %}>
+                        </label>
+
+                        <div class="pt-2">
+                            <button type="submit" class="bg-tubify-green text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
+                                Salvar notificações
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="tab-plano" class="{% if active_tab != 'plano' %}hidden{% endif %} space-y-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900">Plano e cobrança</h2>
+                        <p class="text-sm text-gray-500">Veja seu plano atual e explore os benefícios do Tubify Pro.</p>
+                    </div>
+                    <form method="POST" class="space-y-6">
+                        <input type="hidden" name="section" value="plano">
+
+                        <div class="border rounded-xl p-4 flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">
+                                    Plano atual:
+                                    {% if plan.current == 'pro' %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800">Pro</span>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">Gratuito</span>
+                                    {% endif %}
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {% if plan.current == 'pro' %}
+                                    Você está no Tubify Pro, com acesso ampliado para estudar sem limites.
+                                    {% else %}
+                                    Você está usando o plano gratuito, ideal para testar o Tubify no dia a dia.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="border rounded-xl p-4 bg-green-50 border-green-100">
+                            <h3 class="text-sm font-semibold text-green-900">Experimente o Tubify Pro</h3>
+                            <p class="text-xs text-green-800 mt-1">Desbloqueie resumos ilimitados, mais velocidade e recursos avançados para seus estudos.</p>
+                            <button type="submit" class="mt-3 bg-tubify-green text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
+                                Fazer upgrade para Pro
+                            </button>
+                            <p class="mt-1 text-xs text-green-900">Você será redirecionado para uma página segura de pagamento em versões futuras.</p>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="tab-privacidade" class="{% if active_tab != 'privacidade' %}hidden{% endif %} space-y-6">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900">Privacidade e dados</h2>
+                        <p class="text-sm text-gray-500">Controle como seus dados e resumos são armazenados no Tubify.</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <form method="POST" class="border rounded-xl p-4 bg-gray-50 space-y-2" onsubmit="return confirm('Deseja realmente apagar todo o histórico de resumos? Essa ação não pode ser desfeita.');">
+                            <input type="hidden" name="section" value="privacidade">
+                            <input type="hidden" name="action" value="apagar_historico">
+                            <h3 class="text-sm font-semibold text-gray-900">Apagar histórico de resumos</h3>
+                            <p class="text-xs text-gray-500">Você pode limpar o histórico de resumos gerados na sua conta.</p>
+                            <button type="submit" class="mt-2 inline-flex items-center bg-red-50 text-red-700 px-4 py-2 rounded-lg text-xs font-medium hover:bg-red-100 transition-colors">
+                                Apagar histórico
+                            </button>
+                        </form>
+
+                        <form method="POST" class="border rounded-xl p-4 bg-red-50 space-y-2" onsubmit="return confirm('Tem certeza que deseja excluir sua conta? Essa ação é permanente.');">
+                            <input type="hidden" name="section" value="privacidade">
+                            <input type="hidden" name="action" value="excluir_conta">
+                            <h3 class="text-sm font-semibold text-red-900">Excluir conta</h3>
+                            <p class="text-xs text-red-800">Ao excluir sua conta, todos os seus dados e resumos serão removidos de forma permanente.</p>
+                            <button type="submit" class="mt-2 inline-flex items-center bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-medium hover:bg-red-700 transition-colors">
+                                Excluir minha conta
+                            </button>
+                        </form>
+
+                        <div class="border rounded-xl p-4 bg-white">
+                            <h3 class="text-sm font-semibold text-gray-900">Política de privacidade</h3>
+                            <p class="text-xs text-gray-500 mt-1">Saiba em detalhes como tratamos seus dados pessoais.</p>
+                            <a href="#" class="mt-2 inline-flex items-center text-xs font-medium text-tubify-green hover:text-green-700">
+                                Ver política de privacidade
+                            </a>
+                        </div>
+
+                        <div class="border rounded-xl p-4 bg-green-50 border-green-100">
+                            <p class="text-xs text-green-900">
+                                No Tubify, seus dados são usados apenas para melhorar sua experiência de estudo. Não vendemos suas informações para terceiros.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var links = document.querySelectorAll('.tab-link');
+    var tabs = document.querySelectorAll('[id^="tab-"]');
+    var themeRadios = document.querySelectorAll('input[name="theme"]');
+    var body = document.body;
+
+    function activateTab(target) {
+        tabs.forEach(function (tab) {
+            if (tab.id === 'tab-' + target) {
+                tab.classList.remove('hidden');
+            } else {
+                tab.classList.add('hidden');
+            }
+        });
+
+        links.forEach(function (link) {
+            var t = link.getAttribute('data-tab-target');
+            if (t === target) {
+                link.classList.add('bg-green-50', 'text-tubify-green');
+                link.classList.remove('text-gray-600');
+            } else {
+                link.classList.remove('bg-green-50', 'text-tubify-green');
+                link.classList.add('text-gray-600');
+            }
+        });
+    }
+
+    function applyThemePreview(value) {
+        body.classList.remove('theme-preview-escuro');
+        if (value === 'escuro') {
+            body.classList.add('theme-preview-escuro');
+        }
+    }
+
+    links.forEach(function (link) {
+        link.addEventListener('click', function () {
+            var target = this.getAttribute('data-tab-target');
+            if (target) {
+                activateTab(target);
+            }
+        });
+    });
+
+    themeRadios.forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            applyThemePreview(this.value);
+        });
+    });
+
+    var initialTheme = "{{ appearance.theme }}";
+    if (initialTheme === "escuro") {
+        applyThemePreview("escuro");
+    }
+});
+</script>
+{% endblock %}

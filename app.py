@@ -1,20 +1,51 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 import time
 import os
 import whisper
 from summarizer import Summarizer
 import threading
 import uuid
+import copy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Import functions from Main.py
 from Main import baixar_audio, transcrever_audio, gerar_resumo
 
 app = Flask(__name__)
+app.secret_key = "tubify-secret"
 
 # Global variables for models
 whisper_model = None
 summarizer_model = None
 TASKS = {}
+USERS = {}
+ADMIN_EMAIL = "7591rafa@gmail.com"
+
+DEFAULT_SETTINGS = {
+    "account": {
+        "name": "",
+        "email": ""
+    },
+    "summary": {
+        "size": "medio",
+        "format": "topicos",
+        "language": "pt-BR"
+    },
+    "appearance": {
+        "theme": "claro",
+        "font_size": "media",
+        "high_contrast": False,
+        "reduce_animations": False
+    },
+    "notifications": {
+        "email_ready": True,
+        "daily_limit_alerts": True,
+        "news": False
+    },
+    "plan": {
+        "current": "gratuito"
+    }
+}
 
 def load_models():
     global whisper_model, summarizer_model
@@ -107,24 +138,171 @@ def process_video_task(task_id, video_url):
         TASKS[task_id]['status'] = 'error'
         TASKS[task_id]['error'] = str(e)
 
-# Mock data for dashboard (keep this for now)
-MOCK_SUMMARIES = [
-    {"id": 1, "title": "Introdução ao Machine Learning", "date": "15/01/2026", "duration": "10:05", "thumbnail": "https://img.youtube.com/vi/KNAWp2S3w94/hqdefault.jpg"},
-    {"id": 2, "title": "História da Arte Moderna", "date": "14/01/2026", "duration": "45:20", "thumbnail": "https://img.youtube.com/vi/4Wp4a-G3hO8/hqdefault.jpg"},
-    {"id": 3, "title": "Como investir em Ações", "date": "10/01/2026", "duration": "12:30", "thumbnail": "https://img.youtube.com/vi/5qap5aO4i9A/hqdefault.jpg"}
-]
+
+def get_current_user():
+    email = session.get('user_email')
+    if not email:
+        return None
+    return USERS.get(email)
+
+
+@app.context_processor
+def inject_current_user():
+    return {"current_user": get_current_user()}
+
+# Mock data for dashboard (atualizado para lista vazia)
+MOCK_SUMMARIES = []
+
+
+@app.route('/configuracoes', methods=['GET', 'POST'])
+def configuracoes():
+    settings = session.get('settings')
+    if not settings:
+        settings = copy.deepcopy(DEFAULT_SETTINGS)
+    user = get_current_user()
+    if user and user.get("plan") == "pro":
+        settings["plan"]["current"] = "pro"
+    active_tab = request.args.get('tab', 'conta')
+    success_message = None
+    if request.method == 'POST':
+        section = request.form.get('section')
+        if not section:
+            section = 'conta'
+        active_tab = section
+        if section == 'conta':
+            name = request.form.get('name', '').strip()
+            email = request.form.get('email', '').strip()
+            settings["account"]["name"] = name
+            settings["account"]["email"] = email
+            success_message = "Suas informações de conta foram atualizadas com sucesso."
+        elif section == 'resumo':
+            size = request.form.get('summary_size', 'medio')
+            summary_format = request.form.get('summary_format', 'topicos')
+            language = request.form.get('summary_language', 'pt-BR')
+            settings["summary"]["size"] = size
+            settings["summary"]["format"] = summary_format
+            settings["summary"]["language"] = language
+            success_message = "Suas preferências de resumo foram salvas com sucesso."
+        elif section == 'aparencia':
+            theme = request.form.get('theme', 'claro')
+            font_size = request.form.get('font_size', 'media')
+            high_contrast = bool(request.form.get('high_contrast'))
+            reduce_animations = bool(request.form.get('reduce_animations'))
+            settings["appearance"]["theme"] = theme
+            settings["appearance"]["font_size"] = font_size
+            settings["appearance"]["high_contrast"] = high_contrast
+            settings["appearance"]["reduce_animations"] = reduce_animations
+            success_message = "Suas preferências de aparência foram atualizadas."
+        elif section == 'notificacoes':
+            email_ready = bool(request.form.get('email_ready'))
+            daily_limit_alerts = bool(request.form.get('daily_limit_alerts'))
+            news = bool(request.form.get('news'))
+            settings["notifications"]["email_ready"] = email_ready
+            settings["notifications"]["daily_limit_alerts"] = daily_limit_alerts
+            settings["notifications"]["news"] = news
+            success_message = "Suas preferências de notificações foram salvas."
+        elif section == 'plano':
+            success_message = "Seu plano foi atualizado com sucesso."
+        elif section == 'privacidade':
+            action = request.form.get('action')
+            if action == 'apagar_historico':
+                success_message = "Seu histórico de resumos foi apagado."
+            elif action == 'excluir_conta':
+                success_message = "Sua conta foi excluída com sucesso."
+        session['settings'] = settings
+    return render_template(
+        'configuracoes.html',
+        account=settings["account"],
+        summary=settings["summary"],
+        appearance=settings["appearance"],
+        notifications=settings["notifications"],
+        plan=settings["plan"],
+        active_tab=active_tab,
+        success_message=success_message
+    )
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return redirect(url_for('dashboard'))
+    error = None
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '')
+        user = USERS.get(email)
+        if not user or not check_password_hash(user['password_hash'], password):
+            error = "Email ou senha inválidos."
+        else:
+            if email == ADMIN_EMAIL:
+                user['plan'] = 'pro'
+                user['is_admin'] = True
+            session['user_email'] = email
+            return redirect(url_for('dashboard'))
+    return render_template('login.html', error=error)
+
+
+@app.route('/cadastro', methods=['GET', 'POST'])
+def cadastro():
+    error = None
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '')
+        confirm = request.form.get('confirm_password', '')
+        if not name or not email or not password or not confirm:
+            error = "Preencha todos os campos."
+        elif password != confirm:
+            error = "As senhas não coincidem."
+        elif email in USERS:
+            error = "Já existe uma conta com esse email."
+        else:
+            plan = "pro" if email == ADMIN_EMAIL else "gratuito"
+            is_admin = email == ADMIN_EMAIL
+            USERS[email] = {
+                "name": name,
+                "email": email,
+                "password_hash": generate_password_hash(password),
+                "plan": plan,
+                "is_admin": is_admin
+            }
+            session['user_email'] = email
+            return redirect(url_for('dashboard'))
+    return render_template('cadastro.html', error=error)
+
+
+@app.route('/recuperar-senha', methods=['GET', 'POST'])
+def recuperar_senha():
+    message = None
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        if email:
+            message = "Se existir uma conta com esse email, enviaremos instruções para redefinir sua senha."
+        else:
+            message = "Informe um email válido."
+    return render_template('recuperar_senha.html', message=message)
+
+
+@app.route('/logout')
+def logout():
+    session.pop('user_email', None)
+    return redirect(url_for('home'))
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template('dashboard.html', summaries=MOCK_SUMMARIES)
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    return render_template('dashboard.html', summaries=MOCK_SUMMARIES, active_section='resumos', user=user)
+
+
+@app.route('/favoritos')
+def favoritos():
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    return render_template('dashboard.html', summaries=MOCK_SUMMARIES, active_section='favoritos', user=user)
 
 @app.route('/start_summary', methods=['POST'])
 def start_summary():
@@ -185,8 +363,4 @@ def plans():
 
 if __name__ == '__main__':
     print("Iniciando servidor Flask...")
-    try:
-        app.run(debug=True, use_reloader=False)
-    except Exception as e:
-        print(f"Erro ao iniciar servidor: {e}")
-        input("Pressione Enter para sair...") 
+    app.run(debug=True, use_reloader=False)
