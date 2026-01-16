@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="relative overflow-hidden bg-white">
+    <div class="max-w-7xl mx-auto">
+        <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32 pt-20">
+            <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+                <div class="sm:text-center lg:text-left">
+                    <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                        <span class="block xl:inline">Transforme vídeos em</span>
+                        <span class="block text-tubify-green xl:inline">conhecimento instantâneo</span>
+                    </h1>
+                    <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                        A IA que assiste, transcreve e resume vídeos do YouTube para você estudar melhor e mais rápido. Economize horas de estudo hoje.
+                    </p>
+                    
+                    <div class="mt-8 sm:mt-10">
+                        <form action="/summary" method="POST" class="sm:flex sm:justify-center lg:justify-start gap-3 async-summary-form">
+                            <div class="min-w-0 flex-1">
+                                <label for="video_url" class="sr-only">URL do YouTube</label>
+                                <input id="video_url" name="video_url" type="url" placeholder="Cole o link do YouTube aqui..." class="block w-full px-4 py-3 rounded-lg border border-gray-300 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-tubify-green focus:border-transparent" required>
+                            </div>
+                            <div class="mt-3 sm:mt-0">
+                                <button type="submit" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-tubify-green hover:bg-green-700 md:py-3 md:text-lg shadow-lg shadow-green-200 transition-all transform hover:scale-105">
+                                    Resumir Agora
+                                </button>
+                            </div>
+                        </form>
+                        <p class="mt-3 text-sm text-gray-400 sm:mt-4">
+                            Experimente grátis. Não precisa de cartão de crédito.
+                        </p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-gray-50 flex items-center justify-center">
+        <!-- Placeholder visual legal -->
+        <div class="w-full h-full object-cover flex items-center justify-center bg-green-50">
+            <div class="p-8 bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+                <div class="space-y-3">
+                    <div class="h-3 bg-green-100 rounded w-full"></div>
+                    <div class="h-3 bg-green-100 rounded w-full"></div>
+                    <div class="h-3 bg-green-100 rounded w-5/6"></div>
+                    <div class="h-3 bg-green-100 rounded w-full"></div>
+                </div>
+                <div class="mt-6 flex justify-between items-center">
+                    <div class="h-8 w-8 bg-tubify-green rounded-full opacity-20"></div>
+                    <div class="h-8 w-24 bg-gray-100 rounded"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="py-12 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="lg:text-center">
+            <h2 class="text-base text-tubify-green font-semibold tracking-wide uppercase">Benefícios</h2>
+            <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                Estude de forma inteligente
+            </p>
+            <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+                O Tubify foi criado para estudantes que valorizam seu tempo.
+            </p>
+        </div>
+
+        <div class="mt-10">
+            <dl class="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
+                <div class="relative">
+                    <dt>
+                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-tubify-green text-white">
+                            <!-- Heroicon name: outline/clock -->
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Economize Tempo</p>
+                    </dt>
+                    <dd class="mt-2 ml-16 text-base text-gray-500">
+                        Transforme vídeos de 1 hora em leituras de 5 minutos. Vá direto ao ponto.
+                    </dd>
+                </div>
+
+                <div class="relative">
+                    <dt>
+                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-tubify-green text-white">
+                            <!-- Heroicon name: outline/lightning-bolt -->
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">IA de Ponta</p>
+                    </dt>
+                    <dd class="mt-2 ml-16 text-base text-gray-500">
+                        Usamos modelos avançados para garantir que nenhum detalhe importante seja perdido.
+                    </dd>
+                </div>
+
+                <div class="relative">
+                    <dt>
+                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-tubify-green text-white">
+                            <!-- Heroicon name: outline/annotation -->
+                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                            </svg>
+                        </div>
+                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Foco no Essencial</p>
+                    </dt>
+                    <dd class="mt-2 ml-16 text-base text-gray-500">
+                        Receba os pontos chave formatados e prontos para seus estudos ou anotações.
+                    </dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}

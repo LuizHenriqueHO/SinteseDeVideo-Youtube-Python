@@ -1,0 +1,6 @@
+flask
+openai-whisper
+pytubefix
+bert-extractive-summarizer
+torch
+transformers
