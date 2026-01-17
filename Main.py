@@ -2,6 +2,7 @@ import whisper
 from pytubefix import YouTube
 from pytubefix.cli import on_progress
 from summarizer import Summarizer
+from transformers import pipeline
 import os
 
 def baixar_audio(url, progress_callback=None):
@@ -27,17 +28,48 @@ def transcrever_audio(arquivo, modelo):
     dicionario = modelo.transcribe(arquivo)
     return dicionario["text"]
 
+def _chunk_text(texto, max_chars=3000):
+    partes = []
+    atual = texto
+    while len(atual) > max_chars:
+        corte = atual.rfind(".", 0, max_chars)
+        if corte == -1:
+            corte = max_chars
+        partes.append(atual[:corte + 1])
+        atual = atual[corte + 1 :]
+    if atual.strip():
+        partes.append(atual)
+    return partes
+
 def gerar_resumo(texto, modelo_resumo=None):
+    texto = texto.strip()
+    texto = texto.replace("\n", " ")
+    texto = " ".join(texto.split())
+
     if modelo_resumo is None:
-        modelo_resumo = Summarizer()
-        
-    resumo = modelo_resumo(texto, min_length=30, max_length=1000)
+        try:
+            modelo_resumo = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+        except Exception:
+            modelo_resumo = Summarizer()
 
-    #Parte de formatacao correta do nosso resumo
-    resumo = resumo.strip() 
+    if hasattr(modelo_resumo, "task") and modelo_resumo.task == "summarization":
+        partes = _chunk_text(texto, max_chars=3000)
+        resumos_parciais = []
+        for parte in partes:
+            saida = modelo_resumo(parte, max_length=180, min_length=60, do_sample=False)
+            resumos_parciais.append(saida[0]["summary_text"].strip())
+        combinado = " ".join(resumos_parciais)
+        if len(partes) > 1:
+            final_saida = modelo_resumo(combinado, max_length=200, min_length=80, do_sample=False)
+            resumo = final_saida[0]["summary_text"]
+        else:
+            resumo = combinado
+    else:
+        resumo = modelo_resumo(texto, min_length=60, max_length=500)
+
+    resumo = resumo.strip()
     resumo = resumo.replace("\n", " ")
-    resumo = resumo.replace("  ", " ") 
-
+    resumo = " ".join(resumo.split())
     return resumo
 
 if __name__ == "__main__":

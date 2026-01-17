@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, send_file
 import time
 import os
+from io import BytesIO
 import whisper
 from summarizer import Summarizer
+from transformers import pipeline
 import threading
 import uuid
 import copy
@@ -58,9 +60,9 @@ def load_models():
                 print("Modelo Whisper carregado.")
             
             if summarizer_model is None:
-                print("Carregando Summarizer...")
-                summarizer_model = Summarizer()
-                print("Modelo Summarizer carregado.")
+                print("Carregando modelo de resumo...")
+                summarizer_model = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+                print("Modelo de resumo carregado.")
             
             return True
         except Exception as e:
@@ -344,6 +346,70 @@ def get_result(task_id):
     # del TASKS[task_id]
     
     return render_template('summary.html', **result)
+
+
+@app.route('/save_summary', methods=['POST'])
+def save_summary():
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    summaries = session.get('summaries', [])
+    summaries.append({
+        "title": request.form.get('title', ''),
+        "video_id": request.form.get('video_id', ''),
+        "duration": request.form.get('duration', ''),
+        "full_summary": request.form.get('full_summary', '')
+    })
+    session['summaries'] = summaries
+    return redirect(request.referrer or url_for('dashboard'))
+
+
+@app.route('/download_pdf', methods=['POST'])
+def download_pdf():
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+
+    try:
+        from reportlab.lib.pagesizes import letter
+        from reportlab.pdfgen import canvas
+    except ImportError:
+        return "Biblioteca de PDF não está instalada. Execute 'pip install reportlab' para habilitar exportação em PDF.", 500
+
+    title = request.form.get('title', 'Resumo Tubify')
+    duration = request.form.get('duration', '')
+    full_summary = request.form.get('full_summary', '')
+
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+
+    y = height - 50
+    pdf.setFont("Helvetica-Bold", 14)
+    pdf.drawString(50, y, title)
+    y -= 25
+
+    if duration:
+        pdf.setFont("Helvetica", 10)
+        pdf.drawString(50, y, f"Duração original: {duration}")
+        y -= 20
+
+    pdf.setFont("Helvetica", 11)
+    text = pdf.beginText(50, y)
+    for line in full_summary.splitlines():
+        text.textLine(line)
+    pdf.drawText(text)
+
+    pdf.showPage()
+    pdf.save()
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="resumo_tubify.pdf",
+        mimetype="application/pdf"
+    )
 
 @app.route('/summary', methods=['POST', 'GET'])
 def summary():

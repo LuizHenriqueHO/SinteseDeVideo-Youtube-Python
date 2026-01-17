@@ -4,3 +4,4 @@ pytubefix
 bert-extractive-summarizer
 torch
 transformers
+reportlab

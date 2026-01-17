@@ -20,16 +20,27 @@
                 <p class="text-sm text-gray-500">Duração original: {{ duration }}</p>
             </div>
             <div class="flex space-x-2">
-                <button class="p-2 text-gray-400 hover:text-tubify-green hover:bg-green-50 rounded-full transition-colors" title="Salvar">
-                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                    </svg>
-                </button>
-                <button class="p-2 text-gray-400 hover:text-tubify-green hover:bg-green-50 rounded-full transition-colors" title="Baixar PDF">
-                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                </button>
+                <form method="POST" action="{{ url_for('save_summary') }}">
+                    <input type="hidden" name="title" value="{{ title }}">
+                    <input type="hidden" name="video_id" value="{{ video_id }}">
+                    <input type="hidden" name="duration" value="{{ duration }}">
+                    <input type="hidden" name="full_summary" value="{{ full_summary }}">
+                    <button class="p-2 text-gray-400 hover:text-tubify-green hover:bg-green-50 rounded-full transition-colors" title="Salvar">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                    </button>
+                </form>
+                <form method="POST" action="{{ url_for('download_pdf') }}">
+                    <input type="hidden" name="title" value="{{ title }}">
+                    <input type="hidden" name="duration" value="{{ duration }}">
+                    <input type="hidden" name="full_summary" value="{{ full_summary }}">
+                    <button class="p-2 text-gray-400 hover:text-tubify-green hover:bg-green-50 rounded-full transition-colors" title="Baixar PDF">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -72,10 +83,12 @@
         </div>
         
         <!-- CTA Footer -->
+        {% if not session.get('user_email') %}
         <div class="bg-gray-50 p-6 text-center border-t border-gray-100">
             <p class="text-gray-600 mb-4">Gostou deste resumo? Crie sua conta para salvar e acessar depois.</p>
             <a href="/login" class="inline-block bg-tubify-green text-white px-6 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors">Criar Conta Grátis</a>
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
