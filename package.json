@@ -1,0 +1,17 @@
+{
+  "name": "tubify-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Build de CSS (Tailwind) para o front-end do Tubify",
+  "scripts": {
+    "build:css": "tailwindcss -i ./static/src/input.css -o ./static/css/app.css --minify",
+    "watch:css": "tailwindcss -i ./static/src/input.css -o ./static/css/app.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.11",
+    "tailwindcss": "^3.4.0"
+  },
+  "dependencies": {
+    "puppeteer-core": "^25.2.0"
+  }
+}

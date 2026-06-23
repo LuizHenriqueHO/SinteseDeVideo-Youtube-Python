@@ -1,95 +1,142 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tubify - Transforme vídeos em conhecimento</title>
-    
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>{% block title %}Tubify — Transforme vídeos em conhecimento{% endblock %}</title>
+    <meta name="description" content="{% block description %}Tubify usa IA para transcrever e resumir vídeos do YouTube. Economize horas de estudo transformando vídeos longos em resumos objetivos.{% endblock %}">
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ self.title() }}">
+    <meta property="og:description" content="{{ self.description() }}">
+    <meta property="og:image" content="{{ url_for('static', filename='images/logo.png', _external=True) }}">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Favicon (SVG inline) -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2316A34A'/%3E%3Cpath d='M13 11l9 5-9 5z' fill='white'/%3E%3C/svg%3E">
+
+    <!-- Evita flash de tema claro antes do JS (FOUC) -->
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('tubify_theme') === 'escuro') {
+                    document.documentElement.classList.add('dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
+
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Configuração Tailwind personalizada -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        tubify: {
-                            green: '#16A34A',
-                            light: '#86EFAC',
-                            dark: '#14532D',
-                            bg: '#F3F4F6'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #F3F4F6;
-        }
-        body.theme-preview-escuro {
-            background-color: #020617;
-            color: #F9FAFB;
-        }
-        body.theme-preview-escuro .bg-white {
-            background-color: #020617;
-        }
-        body.theme-preview-escuro .bg-gray-50 {
-            background-color: #020617;
-        }
-        body.theme-preview-escuro .text-gray-900 {
-            color: #F9FAFB;
-        }
-        body.theme-preview-escuro .text-gray-500 {
-            color: #9CA3AF;
-        }
-        body.theme-preview-escuro .border-gray-100 {
-            border-color: #111827;
-        }
-        .btn-primary {
-            @apply bg-tubify-green text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors shadow-lg shadow-green-200;
-        }
-        .btn-outline {
-            @apply border-2 border-tubify-green text-tubify-green px-6 py-3 rounded-lg font-medium hover:bg-green-50 transition-colors;
-        }
-        .card {
-            @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6;
-        }
-    </style>
+
+    <!-- CSS compilado do Tailwind (build de produção, ver README) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
-<body class="text-gray-800 antialiased flex flex-col min-h-screen">
+<body class="flex min-h-screen flex-col">
 
     <!-- Navbar -->
-    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-36">
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
                 <div class="flex items-center">
-                    <a href="/" class="flex-shrink-0 flex items-center">
-                        <img class="h-32 w-auto" src="{{ url_for('static', filename='images/real log.png') }}" alt="Tubify">
+                    <a href="/" class="flex flex-shrink-0 items-center" aria-label="Página inicial do Tubify">
+                        <img class="h-10 w-auto" src="{{ url_for('static', filename='images/logo.png') }}" alt="Tubify">
                     </a>
-                    <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
-                        <a href="/" class="border-transparent text-gray-500 hover:border-tubify-green hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Home</a>
-                        <a href="/dashboard" class="border-transparent text-gray-500 hover:border-tubify-green hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Dashboard</a>
+                    {% set path = request.path %}
+                    {% set active = 'border-tubify-green text-gray-900 dark:text-white' %}
+                    <div class="hidden sm:ml-8 sm:flex sm:space-x-6">
+                        <a href="/" class="nav-link {% if path == '/' %}{{ active }}{% endif %}" {% if path == '/' %}aria-current="page"{% endif %}>Home</a>
+                        <a href="/#como-funciona" class="nav-link">Como funciona</a>
+                        <a href="{{ url_for('plans') }}" class="nav-link {% if path == '/plans' %}{{ active }}{% endif %}" {% if path == '/plans' %}aria-current="page"{% endif %}>Planos</a>
+                        <a href="{{ url_for('dashboard') }}" class="nav-link {% if path in ['/dashboard', '/favoritos'] %}{{ active }}{% endif %}" {% if path in ['/dashboard', '/favoritos'] %}aria-current="page"{% endif %}>Dashboard</a>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    {% if session.get('user_email') %}
-                        <a href="{{ url_for('logout') }}" class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors shadow-md shadow-red-200">Logout</a>
+
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- Alternar tema -->
+                    <button id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro"
+                            class="rounded-lg p-2 text-gray-500 transition-transform hover:bg-gray-100 active:scale-90 dark:text-slate-300 dark:hover:bg-slate-800">
+                        <svg class="h-5 w-5 dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                        <svg class="hidden h-5 w-5 dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </button>
+
+                    <div class="hidden items-center gap-3 sm:flex">
+                        {% if current_user %}
+                        <div class="relative" id="profile-menu">
+                            <button id="profile-button" type="button" aria-haspopup="true" aria-expanded="false"
+                                    class="flex items-center gap-2 rounded-full p-1 pr-2 transition-colors hover:bg-gray-100 dark:hover:bg-slate-800">
+                                <span class="flex h-9 w-9 items-center justify-center rounded-full bg-tubify-green text-sm font-semibold text-white">
+                                    {{ (current_user.name[:1] | upper) if current_user.name else 'U' }}
+                                </span>
+                                <svg class="h-4 w-4 text-gray-400 transition-transform" id="profile-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div id="profile-dropdown" class="absolute right-0 mt-2 hidden w-60 origin-top-right rounded-xl border border-gray-100 bg-white py-2 shadow-xl ring-1 ring-black/5 dark:border-slate-800 dark:bg-slate-900 dark:ring-white/10">
+                                <div class="border-b border-gray-100 px-4 pb-3 dark:border-slate-800">
+                                    <p class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ current_user.name or 'Usuário Tubify' }}</p>
+                                    <p class="truncate text-xs text-gray-500 dark:text-slate-400">{{ current_user.email }}</p>
+                                    <span class="badge mt-2 {% if current_user.is_pro %}bg-green-100 text-green-800 dark:bg-green-950/50 dark:text-green-300{% else %}bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-200{% endif %}">
+                                        {{ 'Plano Pro' if current_user.is_pro else 'Plano Gratuito' }}
+                                    </span>
+                                </div>
+                                <a href="{{ url_for('dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-800">Meus resumos</a>
+                                <a href="{{ url_for('favoritos') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-800">Favoritos</a>
+                                <a href="{{ url_for('configuracoes') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-800">Configurações</a>
+                                <div class="my-1 border-t border-gray-100 dark:border-slate-800"></div>
+                                <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40">Sair</a>
+                            </div>
+                        </div>
+                        {% else %}
+                            <a href="{{ url_for('login') }}" class="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-slate-300 dark:hover:text-white">Entrar</a>
+                            <a href="{{ url_for('cadastro') }}" class="btn-primary">Cadastro</a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Hambúrguer (mobile) -->
+                    <button id="mobile-menu-button" type="button" aria-label="Abrir menu" aria-controls="mobile-menu" aria-expanded="false"
+                            class="rounded-lg p-2 text-gray-500 transition-transform hover:bg-gray-100 active:scale-90 dark:text-slate-300 dark:hover:bg-slate-800 sm:hidden">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu mobile -->
+        <div id="mobile-menu" class="hidden border-t border-gray-200 dark:border-slate-800 sm:hidden">
+            {% set m_active = 'bg-green-50 text-tubify-green dark:bg-green-950/40' %}
+            <div class="space-y-1 px-4 py-3">
+                <a href="/" class="block rounded-md px-3 py-2 text-base font-medium hover:bg-gray-50 dark:hover:bg-slate-800 {% if path == '/' %}{{ m_active }}{% else %}text-gray-700 dark:text-slate-200{% endif %}">Home</a>
+                <a href="/#como-funciona" class="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-800">Como funciona</a>
+                <a href="{{ url_for('plans') }}" class="block rounded-md px-3 py-2 text-base font-medium hover:bg-gray-50 dark:hover:bg-slate-800 {% if path == '/plans' %}{{ m_active }}{% else %}text-gray-700 dark:text-slate-200{% endif %}">Planos</a>
+                <a href="{{ url_for('dashboard') }}" class="block rounded-md px-3 py-2 text-base font-medium hover:bg-gray-50 dark:hover:bg-slate-800 {% if path in ['/dashboard', '/favoritos'] %}{{ m_active }}{% else %}text-gray-700 dark:text-slate-200{% endif %}">Dashboard</a>
+                <div class="mt-2 border-t border-gray-200 pt-2 dark:border-slate-800">
+                    {% if current_user %}
+                        <div class="flex items-center gap-3 px-3 py-2">
+                            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-tubify-green text-sm font-semibold text-white">
+                                {{ (current_user.name[:1] | upper) if current_user.name else 'U' }}
+                            </span>
+                            <div class="min-w-0">
+                                <p class="truncate text-sm font-medium text-gray-900 dark:text-white">{{ current_user.name or 'Usuário Tubify' }}</p>
+                                <p class="truncate text-xs text-gray-500 dark:text-slate-400">{{ 'Plano Pro' if current_user.is_pro else 'Plano Gratuito' }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('configuracoes') }}" class="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-800">Configurações</a>
+                        <a href="{{ url_for('logout') }}" class="block rounded-md px-3 py-2 text-base font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40">Sair</a>
                     {% else %}
-                        <a href="{{ url_for('login') }}" class="text-gray-500 hover:text-gray-900 font-medium text-sm">Entrar</a>
-                        <a href="{{ url_for('cadastro') }}" class="bg-tubify-green text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-md shadow-green-200">Cadastro</a>
+                        <a href="{{ url_for('login') }}" class="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-slate-800">Entrar</a>
+                        <a href="{{ url_for('cadastro') }}" class="mt-1 block rounded-md bg-tubify-green px-3 py-2 text-center text-base font-medium text-white hover:bg-green-700">Cadastro</a>
                     {% endif %}
                 </div>
             </div>
@@ -102,58 +149,145 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-12">
-        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <div class="md:flex md:items-center md:justify-between">
-                <div class="flex justify-center md:justify-start space-x-6 md:order-2">
-                    <a href="#" class="text-gray-400 hover:text-gray-500">Twitter</a>
-                    <a href="#" class="text-gray-400 hover:text-gray-500">GitHub</a>
+    <footer class="mt-12 border-t border-gray-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 gap-8 md:grid-cols-4">
+                <div class="col-span-2 md:col-span-1">
+                    <img class="h-9 w-auto" src="{{ url_for('static', filename='images/logo.png') }}" alt="Tubify">
+                    <p class="mt-3 max-w-xs text-sm text-gray-500 dark:text-slate-400">Transformando vídeos do YouTube em conhecimento, com IA.</p>
                 </div>
-                <div class="mt-8 md:mt-0 md:order-1">
-                    <p class="text-center text-base text-gray-400">&copy; 2026 Tubify. Transformando vídeos em conhecimento.</p>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-slate-100">Produto</h3>
+                    <ul class="mt-3 space-y-2 text-sm">
+                        <li><a href="/#como-funciona" class="text-gray-500 hover:text-tubify-green dark:text-slate-400">Como funciona</a></li>
+                        <li><a href="{{ url_for('plans') }}" class="text-gray-500 hover:text-tubify-green dark:text-slate-400">Planos</a></li>
+                        <li><a href="{{ url_for('dashboard') }}" class="text-gray-500 hover:text-tubify-green dark:text-slate-400">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-slate-100">Conta</h3>
+                    <ul class="mt-3 space-y-2 text-sm">
+                        <li><a href="{{ url_for('login') }}" class="text-gray-500 hover:text-tubify-green dark:text-slate-400">Entrar</a></li>
+                        <li><a href="{{ url_for('cadastro') }}" class="text-gray-500 hover:text-tubify-green dark:text-slate-400">Criar conta</a></li>
+                        <li><a href="{{ url_for('configuracoes') }}" class="text-gray-500 hover:text-tubify-green dark:text-slate-400">Configurações</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-slate-100">Projeto</h3>
+                    <ul class="mt-3 space-y-2 text-sm">
+                        <li><a href="https://github.com" target="_blank" rel="noopener" class="text-gray-500 hover:text-tubify-green dark:text-slate-400">GitHub</a></li>
+                    </ul>
                 </div>
             </div>
+            <p class="mt-10 border-t border-gray-100 pt-6 text-center text-sm text-gray-400 dark:border-slate-800 dark:text-slate-500">
+                &copy; 2026 Tubify. Transformando vídeos em conhecimento.
+            </p>
         </div>
     </footer>
 
     <!-- Progress Modal -->
-    <div id="progress-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 flex items-center justify-center">
-        <div class="relative p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div class="mt-3 text-center">
-                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Gerando Resumo...</h3>
-                <div class="mt-2 px-2 py-3">
-                    <p class="text-sm text-gray-500 mb-4" id="modal-step">Iniciando...</p>
-                    
-                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                        <div id="progress-bar" class="bg-tubify-green h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-2 font-bold" id="progress-text">0%</p>
+    <div id="progress-modal" class="fixed inset-0 z-50 hidden h-full w-full items-center justify-center overflow-y-auto bg-gray-900/60 p-4">
+        <div class="relative w-full max-w-sm rounded-2xl border border-gray-100 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900">
+            <div class="text-center">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-slate-100" id="modal-title">Gerando resumo…</h3>
+                <p class="mb-4 mt-2 text-sm text-gray-500 dark:text-slate-400" id="modal-step">Iniciando…</p>
+                <div class="h-2.5 w-full rounded-full bg-gray-200 dark:bg-slate-700">
+                    <div id="progress-bar" class="h-2.5 rounded-full bg-tubify-green transition-all duration-300" style="width: 0%"></div>
                 </div>
+                <p class="mt-2 text-xs font-bold text-gray-500 dark:text-slate-400" id="progress-text">0%</p>
             </div>
         </div>
     </div>
 
-    <div id="cookie-banner" class="fixed bottom-4 left-1/2 -translate-x-1/2 md:left-auto md:right-6 md:translate-x-0 max-w-sm w-full md:w-96 bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex items-start space-x-3 z-40 hidden">
-        <div class="flex-shrink-0 h-8 w-8 rounded-full bg-tubify-green bg-opacity-10 flex items-center justify-center">
-            <span class="text-tubify-green text-sm font-semibold">🍪</span>
-        </div>
+    <!-- Toasts -->
+    <div id="toast-container" class="fixed bottom-4 left-1/2 z-[60] flex w-full max-w-sm -translate-x-1/2 flex-col gap-2 px-4 md:left-auto md:right-6 md:translate-x-0 md:px-0"></div>
+
+    <!-- Cookie banner -->
+    <div id="cookie-banner" class="fixed bottom-6 left-1/2 z-40 hidden w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 items-start space-x-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-xl ring-1 ring-black/5 transition-all dark:border-slate-800 dark:bg-slate-900 dark:ring-white/10 md:left-auto md:right-6 md:w-96 md:translate-x-0">
+        <span class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-tubify-green dark:bg-green-950/50">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </span>
         <div class="flex-1">
-            <p class="text-sm text-gray-700">
+            <p class="text-sm text-gray-700 dark:text-slate-300">
                 Usamos cookies para funções essenciais do site e para melhorar sua experiência no Tubify.
             </p>
             <div class="mt-3 flex flex-wrap items-center gap-3">
-                <button id="cookie-accept" class="inline-flex items-center justify-center px-4 py-2 bg-tubify-green text-white text-sm font-medium rounded-lg shadow-sm hover:bg-green-700 transition-colors">
-                    Entendi
-                </button>
-                <a href="#" class="text-sm font-medium text-tubify-green hover:text-green-700">
-                    Política de Privacidade
-                </a>
+                <button id="cookie-accept" class="btn-primary px-4 py-2">Entendi</button>
+                <a href="#" class="text-sm font-medium text-tubify-green hover:text-green-700">Política de Privacidade</a>
             </div>
         </div>
     </div>
 
     <script>
+    // ---------- Tema (claro/escuro) ----------
+    (function () {
+        var toggle = document.getElementById('theme-toggle');
+        if (!toggle) return;
+        toggle.addEventListener('click', function () {
+            var isDark = document.documentElement.classList.toggle('dark');
+            try { localStorage.setItem('tubify_theme', isDark ? 'escuro' : 'claro'); } catch (e) {}
+        });
+    })();
+
+    // ---------- Menu mobile ----------
+    (function () {
+        var btn = document.getElementById('mobile-menu-button');
+        var menu = document.getElementById('mobile-menu');
+        if (!btn || !menu) return;
+        btn.addEventListener('click', function () {
+            var open = menu.classList.toggle('hidden') === false;
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+    })();
+
+    // ---------- Dropdown do perfil ----------
+    (function () {
+        var btn = document.getElementById('profile-button');
+        var dropdown = document.getElementById('profile-dropdown');
+        var chevron = document.getElementById('profile-chevron');
+        if (!btn || !dropdown) return;
+        function close() {
+            dropdown.classList.add('hidden');
+            btn.setAttribute('aria-expanded', 'false');
+            if (chevron) chevron.classList.remove('rotate-180');
+        }
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var open = dropdown.classList.toggle('hidden') === false;
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (chevron) chevron.classList.toggle('rotate-180', open);
+        });
+        document.addEventListener('click', function (e) {
+            if (!dropdown.classList.contains('hidden') && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+                close();
+            }
+        });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    })();
+
+    // ---------- Toasts (substitui alert()) ----------
+    function showToast(message, type) {
+        var container = document.getElementById('toast-container');
+        if (!container) { return; }
+        var isError = type === 'error';
+        var el = document.createElement('div');
+        el.setAttribute('role', isError ? 'alert' : 'status');
+        el.className = 'pointer-events-auto rounded-xl border px-4 py-3 text-sm shadow-lg transition-all ' +
+            (isError
+                ? 'border-red-100 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/60 dark:text-red-200'
+                : 'border-green-100 bg-green-50 text-green-800 dark:border-green-900/50 dark:bg-green-950/60 dark:text-green-200');
+        el.textContent = message;
+        container.appendChild(el);
+        setTimeout(function () { el.remove(); }, 5000);
+    }
+
+    // ---------- Geração de resumo (AJAX com CSRF) ----------
     document.addEventListener('DOMContentLoaded', function() {
+        var csrfToken = document.querySelector('meta[name="csrf-token"]');
+        csrfToken = csrfToken ? csrfToken.getAttribute('content') : '';
+
         const forms = document.querySelectorAll('.async-summary-form');
         const modal = document.getElementById('progress-modal');
         const progressBar = document.getElementById('progress-bar');
@@ -163,33 +297,36 @@
         const cookieBanner = document.getElementById('cookie-banner');
         const cookieAccept = document.getElementById('cookie-accept');
 
+        function openModal() { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+        function closeModal() { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+
         forms.forEach(form => {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const formData = new FormData(this);
                 progressBar.style.width = '0%';
                 progressText.innerText = '0%';
-                modalStep.innerText = 'Iniciando...';
-                modalTitle.innerText = 'Gerando Resumo...';
-                modal.classList.remove('hidden');
+                modalStep.innerText = 'Iniciando…';
+                modalTitle.innerText = 'Gerando resumo…';
+                openModal();
                 fetch('/start_summary', {
                     method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken },
                     body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
-                        alert(data.error);
-                        modal.classList.add('hidden');
+                        showToast(data.error, 'error');
+                        closeModal();
                         return;
                     }
-                    const taskId = data.task_id;
-                    pollProgress(taskId);
+                    pollProgress(data.task_id);
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Ocorreu um erro ao iniciar o processo: ' + error);
-                    modal.classList.add('hidden');
+                    showToast('Ocorreu um erro ao iniciar o processo.', 'error');
+                    closeModal();
                 });
             });
         });
@@ -199,8 +336,8 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
-                        alert('Erro: ' + data.error);
-                        modal.classList.add('hidden');
+                        showToast('Erro: ' + data.error, 'error');
+                        closeModal();
                         return;
                     }
                     const pct = data.progress;
@@ -208,15 +345,13 @@
                     progressText.innerText = pct + '%';
                     modalStep.innerText = data.step;
                     if (data.status === 'completed') {
-                        modalStep.innerText = 'Concluído! Redirecionando...';
+                        modalStep.innerText = 'Concluído! Redirecionando…';
                         progressBar.style.width = '100%';
                         progressText.innerText = '100%';
-                        setTimeout(() => {
-                            window.location.href = `/result/${taskId}`;
-                        }, 500);
+                        setTimeout(() => { window.location.href = `/result/${taskId}`; }, 500);
                     } else if (data.status === 'error') {
-                        alert('Erro no processamento: ' + data.error);
-                        modal.classList.add('hidden');
+                        showToast('Erro no processamento: ' + data.error, 'error');
+                        closeModal();
                     } else {
                         setTimeout(() => pollProgress(taskId), 1000);
                     }
@@ -231,13 +366,12 @@
             const consent = window.localStorage.getItem('tubify_cookie_consent');
             if (!consent && cookieBanner) {
                 cookieBanner.classList.remove('hidden');
+                cookieBanner.classList.add('flex');
             }
             if (cookieAccept) {
                 cookieAccept.addEventListener('click', function() {
                     window.localStorage.setItem('tubify_cookie_consent', 'accepted');
-                    if (cookieBanner) {
-                        cookieBanner.classList.add('hidden');
-                    }
+                    if (cookieBanner) { cookieBanner.classList.add('hidden'); cookieBanner.classList.remove('flex'); }
                 });
             }
         } catch (e) {}

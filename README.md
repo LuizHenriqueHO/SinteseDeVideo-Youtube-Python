@@ -32,4 +32,25 @@ Para rodar este projeto, você precisa garantir que os seguintes componentes est
 Você pode instalar todas as bibliotecas Python necessárias com um único comando:
 
 ```bash
-pip install openai-whisper pytubefix bert-extractive-summarizer torch
+pip install -r requirements.txt
+```
+
+### 3. Front-end (CSS)
+
+O CSS é gerado pelo **Tailwind CLI** (não usamos mais o CDN). É necessário **Node.js 18+**.
+
+```bash
+npm install        # instala o Tailwind (uma vez)
+npm run build:css  # gera static/css/app.css (minificado)
+npm run watch:css  # opcional: recompila ao editar os templates
+```
+
+> O arquivo compilado fica em `static/css/app.css` e já é referenciado pelo `base.html`.
+
+## Como rodar
+
+```bash
+python app.py
+```
+
+Acesse **http://127.0.0.1:5000**. Se o comando `python` apontar para a Microsoft Store no Windows, use `py app.py`.

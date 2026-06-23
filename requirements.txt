@@ -1,7 +1,11 @@
 flask
+flask-wtf
+flask-sqlalchemy
 openai-whisper
 pytubefix
-bert-extractive-summarizer
 torch
 transformers
+sentencepiece
+protobuf
 reportlab
+waitress

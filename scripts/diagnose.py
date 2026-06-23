@@ -2,6 +2,9 @@
 import sys
 import os
 
+# Permite rodar de qualquer diretório: adiciona a raiz do projeto ao path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 print(f"Python Executable: {sys.executable}")
 print(f"CWD: {os.getcwd()}")
 print("Importing flask...")
@@ -25,12 +28,12 @@ try:
 except Exception as e:
     print(f"Summarizer import failed: {e}")
 
-print("Importing Main...")
+print("Importing src.video...")
 try:
-    import Main
-    print("Main imported.")
+    from src import video
+    print("src.video imported.")
 except Exception as e:
-    print(f"Main import failed: {e}")
+    print(f"src.video import failed: {e}")
 
 print("All imports successful. Attempting to load models (light check)...")
 try:

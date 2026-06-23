@@ -1,92 +1,80 @@
 {% extends "base.html" %}
 
+{% block title %}{{ title }} — Resumo Tubify{% endblock %}
+
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
+<div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+
     <div class="mb-6">
-        <a href="/" class="text-sm text-gray-500 hover:text-tubify-green flex items-center">
-            <svg class="h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
+        <a href="/" class="flex items-center text-sm text-gray-500 hover:text-tubify-green dark:text-slate-400">
+            <svg class="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
             Voltar para Home
         </a>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+    <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900">
         <!-- Header do Resumo -->
-        <div class="p-6 border-b border-gray-100 bg-gray-50 flex justify-between items-start">
+        <div class="flex items-start justify-between gap-4 border-b border-gray-100 bg-gray-50 p-6 dark:border-slate-800 dark:bg-slate-800/50">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 leading-tight mb-2">{{ title }}</h1>
-                <p class="text-sm text-gray-500">Duração original: {{ duration }}</p>
+                <h1 class="mb-2 text-2xl font-bold leading-tight text-gray-900 dark:text-white">{{ title }}</h1>
+                <p class="text-sm text-gray-500 dark:text-slate-400">Duração original: {{ duration }}</p>
             </div>
-            <div class="flex space-x-2">
-                <form method="POST" action="{{ url_for('save_summary') }}">
-                    <input type="hidden" name="title" value="{{ title }}">
-                    <input type="hidden" name="video_id" value="{{ video_id }}">
-                    <input type="hidden" name="duration" value="{{ duration }}">
-                    <input type="hidden" name="full_summary" value="{{ full_summary }}">
-                    <button class="p-2 text-gray-400 hover:text-tubify-green hover:bg-green-50 rounded-full transition-colors" title="Salvar">
-                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                        </svg>
+            <div class="flex flex-shrink-0 space-x-2">
+                {% if summary_id %}
+                <form method="POST" action="{{ url_for('toggle_favorite', summary_id=summary_id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="rounded-full p-2 text-gray-400 transition-colors hover:bg-green-50 hover:text-tubify-green dark:hover:bg-green-950/40" title="Favoritar resumo" aria-label="Favoritar resumo">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
                     </button>
                 </form>
+                {% endif %}
                 <form method="POST" action="{{ url_for('download_pdf') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="title" value="{{ title }}">
                     <input type="hidden" name="duration" value="{{ duration }}">
                     <input type="hidden" name="full_summary" value="{{ full_summary }}">
-                    <button class="p-2 text-gray-400 hover:text-tubify-green hover:bg-green-50 rounded-full transition-colors" title="Baixar PDF">
-                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
+                    <button class="rounded-full p-2 text-gray-400 transition-colors hover:bg-green-50 hover:text-tubify-green dark:hover:bg-green-950/40" title="Baixar PDF" aria-label="Baixar resumo em PDF">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                     </button>
                 </form>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3">
-            <!-- Video Column -->
-            <div class="lg:col-span-1 bg-black flex items-center justify-center p-4">
-                <div class="aspect-w-16 aspect-h-9 w-full bg-gray-800 rounded-lg flex items-center justify-center text-white text-sm overflow-hidden">
+        <div class="grid grid-cols-1 items-start lg:grid-cols-3">
+            <!-- Vídeo -->
+            <div class="p-6 lg:col-span-1 lg:sticky lg:top-24">
+                <div class="aspect-video w-full overflow-hidden rounded-lg bg-gray-900 shadow-sm">
                     {% if video_id %}
-                    <iframe class="w-full h-48 rounded" src="https://www.youtube.com/embed/{{ video_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <iframe class="h-full w-full" src="https://www.youtube.com/embed/{{ video_id }}" title="{{ title }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     {% else %}
-                    <img src="{{ thumbnail }}" alt="Thumbnail" class="w-full h-full object-cover opacity-80">
+                    <img src="{{ thumbnail }}" alt="Miniatura do vídeo" class="h-full w-full object-cover">
                     {% endif %}
                 </div>
             </div>
 
-            <!-- Content Column -->
-            <div class="lg:col-span-2 p-8">
-                <div class="prose prose-green max-w-none">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Principais Pontos</h3>
-                    
-                    <ul class="space-y-4">
-                        {% for point in summary_points %}
-                        <li class="flex items-start">
-                            <span class="flex-shrink-0 h-6 w-6 flex items-center justify-center rounded-full bg-green-100 text-tubify-green font-bold text-xs mt-0.5">{{ loop.index }}</span>
-                            <span class="ml-4 text-gray-600">
-                                {{ point }}.
-                            </span>
-                        </li>
-                        {% endfor %}
-                    </ul>
+            <!-- Conteúdo -->
+            <div class="border-t border-gray-100 p-8 dark:border-slate-800 lg:col-span-2 lg:border-l lg:border-t-0">
+                <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Principais Pontos</h2>
+                <ul class="space-y-4">
+                    {% for point in summary_points %}
+                    <li class="flex items-start">
+                        <span class="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-xs font-bold text-tubify-green dark:bg-green-950/50">{{ loop.index }}</span>
+                        <span class="ml-4 text-gray-600 dark:text-slate-300">{{ point }}.</span>
+                    </li>
+                    {% endfor %}
+                </ul>
 
-                    <div class="mt-8 p-4 bg-green-50 rounded-lg border border-green-100">
-                        <h4 class="text-sm font-bold text-green-800 mb-2">Resumo Completo</h4>
-                        <p class="text-sm text-green-700">
-                            {{ full_summary }}
-                        </p>
-                    </div>
+                <div class="mt-8 rounded-lg border border-green-100 bg-green-50 p-4 dark:border-green-900/50 dark:bg-green-950/30">
+                    <h3 class="mb-2 text-sm font-bold text-green-800 dark:text-green-300">Resumo Completo</h3>
+                    <p class="text-sm text-green-700 dark:text-green-300/90">{{ full_summary }}</p>
                 </div>
             </div>
         </div>
-        
-        <!-- CTA Footer -->
-        {% if not session.get('user_email') %}
-        <div class="bg-gray-50 p-6 text-center border-t border-gray-100">
-            <p class="text-gray-600 mb-4">Gostou deste resumo? Crie sua conta para salvar e acessar depois.</p>
-            <a href="/login" class="inline-block bg-tubify-green text-white px-6 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors">Criar Conta Grátis</a>
+
+        {% if not current_user %}
+        <div class="border-t border-gray-100 bg-gray-50 p-6 text-center dark:border-slate-800 dark:bg-slate-800/50">
+            <p class="mb-4 text-gray-600 dark:text-slate-300">Gostou deste resumo? Crie sua conta para salvar e acessar depois.</p>
+            <a href="{{ url_for('cadastro') }}" class="btn-primary">Criar conta grátis</a>
         </div>
         {% endif %}
     </div>

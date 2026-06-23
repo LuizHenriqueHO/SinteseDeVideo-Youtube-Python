@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Planos — Tubify{% endblock %}
+{% block description %}Compare os planos do Tubify. Comece grátis ou desbloqueie resumos ilimitados com o Tubify Pro.{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+    <div class="text-center">
+        <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Planos simples e transparentes</h1>
+        <p class="mx-auto mt-4 max-w-2xl text-lg text-gray-500 dark:text-slate-400">Comece de graça. Faça upgrade quando precisar de mais.</p>
+
+        <!-- Toggle Mensal / Anual -->
+        <div class="mt-8 inline-flex items-center gap-3 rounded-full border border-gray-200 bg-white p-1 dark:border-slate-800 dark:bg-slate-900">
+            <button id="billing-mensal" type="button" class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors bg-tubify-green text-white">Mensal</button>
+            <button id="billing-anual" type="button" class="rounded-full px-4 py-1.5 text-sm font-medium text-gray-600 transition-colors dark:text-slate-300">
+                Anual <span class="ml-1 text-xs font-semibold text-tubify-green">-20%</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="mt-12 grid gap-8 md:grid-cols-2">
+        <!-- Free -->
+        <div class="card card-hover flex flex-col">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Gratuito</h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">Para curiosos que querem testar.</p>
+            <p class="mt-6">
+                <span class="text-4xl font-extrabold text-gray-900 dark:text-white">R$ 0</span>
+                <span class="text-sm text-gray-500 dark:text-slate-400">/sempre</span>
+            </p>
+            <ul class="mt-6 space-y-3 text-sm text-gray-600 dark:text-slate-300">
+                {% for item in ['3 resumos por dia', 'Vídeos de até 15 minutos', 'Resumo em tópicos', 'Histórico básico'] %}
+                <li class="flex items-start gap-2">
+                    <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-tubify-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>{{ item }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            <a href="{{ url_for('cadastro') }}" class="btn-outline btn-block mt-auto">Começar grátis</a>
+        </div>
+
+        <!-- Pro -->
+        <div class="card card-hover relative flex flex-col border-tubify-green ring-1 ring-tubify-green">
+            <span class="badge absolute -top-3 left-6 bg-tubify-green text-white">Mais popular</span>
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Pro</h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">Para estudantes sérios.</p>
+            <p class="mt-6">
+                <span class="text-4xl font-extrabold text-gray-900 dark:text-white"><span data-price-mensal>R$ 19</span><span data-price-anual class="hidden">R$ 15</span></span>
+                <span class="text-sm text-gray-500 dark:text-slate-400">/mês</span>
+            </p>
+            <p class="mt-1 text-xs text-gray-400 dark:text-slate-500"><span data-price-anual class="hidden">Cobrado anualmente (R$ 180/ano). </span>Cancele quando quiser.</p>
+            <ul class="mt-6 space-y-3 text-sm text-gray-600 dark:text-slate-300">
+                {% for item in ['Resumos ilimitados', 'Vídeos de qualquer duração', 'Exportação em PDF', 'Prioridade no processamento', 'Sem anúncios'] %}
+                <li class="flex items-start gap-2">
+                    <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-tubify-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>{{ item }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            <a href="{{ url_for('configuracoes', tab='plano') }}" class="btn-primary btn-block mt-auto">Fazer upgrade para Pro</a>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="mt-20">
+        <h2 class="text-center text-2xl font-bold text-gray-900 dark:text-white">Perguntas frequentes</h2>
+        <div class="mx-auto mt-8 max-w-3xl divide-y divide-gray-200 dark:divide-slate-800">
+            {% set faqs = [
+                ('Posso cancelar quando quiser?', 'Sim. O plano Pro pode ser cancelado a qualquer momento e você continua com acesso até o fim do período já pago.'),
+                ('Existe limite de duração de vídeo?', 'No plano gratuito, vídeos de até 15 minutos. No Pro, não há limite de duração.'),
+                ('Quais formatos de exportação são suportados?', 'O plano Pro permite exportar os resumos em PDF. Mais formatos estão a caminho.'),
+                ('Meus dados estão seguros?', 'Sim. Usamos seus dados apenas para gerar e melhorar seus resumos, e nunca os vendemos a terceiros.')
+            ] %}
+            {% for pergunta, resposta in faqs %}
+            <details class="group py-4">
+                <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-medium text-gray-900 dark:text-white">
+                    {{ pergunta }}
+                    <svg class="h-5 w-5 text-gray-400 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </summary>
+                <p class="mt-3 text-sm text-gray-500 dark:text-slate-400">{{ resposta }}</p>
+            </details>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var mensalBtn = document.getElementById('billing-mensal');
+    var anualBtn = document.getElementById('billing-anual');
+    if (!mensalBtn || !anualBtn) return;
+
+    var activeCls = ['bg-tubify-green', 'text-white'];
+    var idleCls = ['text-gray-600', 'dark:text-slate-300'];
+
+    function setMode(anual) {
+        document.querySelectorAll('[data-price-mensal]').forEach(function (el) { el.classList.toggle('hidden', anual); });
+        document.querySelectorAll('[data-price-anual]').forEach(function (el) { el.classList.toggle('hidden', !anual); });
+        if (anual) {
+            anualBtn.classList.add.apply(anualBtn.classList, activeCls);
+            anualBtn.classList.remove.apply(anualBtn.classList, idleCls);
+            mensalBtn.classList.remove.apply(mensalBtn.classList, activeCls);
+            mensalBtn.classList.add.apply(mensalBtn.classList, idleCls);
+        } else {
+            mensalBtn.classList.add.apply(mensalBtn.classList, activeCls);
+            mensalBtn.classList.remove.apply(mensalBtn.classList, idleCls);
+            anualBtn.classList.remove.apply(anualBtn.classList, activeCls);
+            anualBtn.classList.add.apply(anualBtn.classList, idleCls);
+        }
+    }
+    mensalBtn.addEventListener('click', function () { setMode(false); });
+    anualBtn.addEventListener('click', function () { setMode(true); });
+})();
+</script>
+{% endblock %}

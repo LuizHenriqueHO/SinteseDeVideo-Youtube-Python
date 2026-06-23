@@ -1,0 +1,39 @@
+# Node / build de CSS
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Ambientes virtuais
+.venv/
+venv/
+env/
+
+# Banco de dados local
+*.db
+*.sqlite3
+
+# Logs e artefatos de execução
+server.log
+*.log
+shots/
+
+# Mídia baixada/temporária (downloads do YouTube)
+*.mp4
+*.mp3
+*.m4a
+*.webm
+*.wav
+
+# IDEs
+.idea/
+.vscode/
+
+# SO
+.DS_Store
+Thumbs.db
